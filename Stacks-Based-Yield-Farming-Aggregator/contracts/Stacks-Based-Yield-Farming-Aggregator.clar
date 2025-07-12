@@ -366,3 +366,37 @@
   active: bool,
   participants: uint
 })
+
+(define-data-var next-competition-id uint u1)
+(define-map competition-participants {competition-id: uint, user: principal} uint) ;; strategy-id
+
+;; ==== Emergency Circuit Breaker ====
+(define-map circuit-breakers principal {
+  token: principal,
+  max-withdraw-per-block: uint,
+  current-block-withdrawals: uint,
+  last-reset-block: uint,
+  breaker-active: bool,
+  trigger-threshold: uint ;; Percentage of TVL
+})
+
+(define-map farming-certificates uint {
+  owner: principal,
+  strategy-id: uint,
+  deposit-amount: uint,
+  issue-block: uint,
+  tier: (string-ascii 16), ;; "bronze", "silver", "gold", "diamond"
+  transferable: bool,
+  boost-power: uint ;; Basis points boost to yields
+})
+
+(define-data-var next-certificate-id uint u1)
+
+(define-map social-profiles principal {
+  display-name: (string-ascii 32),
+  total-followers: uint,
+  total-following: uint,
+  public-strategies: uint,
+  reputation-score: uint,
+  verified: bool
+})
