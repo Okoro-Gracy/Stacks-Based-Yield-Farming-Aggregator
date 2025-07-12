@@ -111,3 +111,52 @@
   compound-preference: bool ;; Whether user prefers auto-compounding
 })
 
+;; Strategy definitions
+(define-map strategies uint {
+  name: (string-ascii 64),
+  description: (string-ascii 256),
+  input-token: principal,
+  active: bool,
+  risk-level: (string-ascii 16), ;; "low", "medium", "high"
+  allocation-map: (list 10 {protocol: principal, pool-id: uint, allocation: uint}), ;; Protocol and allocation in percentage
+  total-allocation: uint, ;; Must sum to 10000 (100%)
+  total-apy: uint, ;; Combined APY in basis points
+  total-staked: uint, ;; Total amount staked in this strategy
+  share-price: uint, ;; Current price per share
+  share-token: principal, ;; Token representing shares
+  auto-compound: bool, ;; Whether strategy auto-compounds
+  last-rebalance-block: uint,
+  creation-block: uint,
+  performance-history: (list 30 {block: uint, apy: uint}) ;; Historical performance
+})
+
+;; Strategy counter
+(define-data-var next-strategy-id uint u1)
+
+;; Harvested rewards tracking
+(define-map harvested-rewards {protocol: principal, pool-id: uint} {
+  last-amount: uint,
+  total-amount: uint,
+  last-harvest-block: uint
+})
+
+;; Protocol revenue tracking
+(define-map protocol-revenue {
+  token: principal
+} {
+  performance-fees: uint,
+  withdrawal-fees: uint,
+  total-fees: uint
+})
+
+;; Historical APY data for each protocol
+(define-map protocol-apy-history {protocol: principal, day: uint} uint)
+
+;; User activity log
+(define-map user-activity {user: principal, activity-id: uint} {
+  activity-type: (string-ascii 16), ;; "deposit", "withdraw", "harvest", "claim"
+  strategy-id: uint,
+  amount: uint,
+  block-height: uint,
+  success: bool
+})
