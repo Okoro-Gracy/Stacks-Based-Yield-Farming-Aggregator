@@ -324,3 +324,45 @@
   priority-access: bool,
   custom-limits: bool
 })
+
+(define-data-var whitelist-enabled bool false)
+
+;; ==== Time-Locked Vault System ====
+(define-map time-locked-vaults {user: principal, vault-id: uint} {
+  token: principal,
+  amount: uint,
+  lock-duration: uint, ;; Blocks to lock
+  unlock-block: uint,
+  bonus-multiplier: uint, ;; Bonus APY multiplier in basis points
+  claimed: bool,
+  auto-renew: bool
+})
+
+
+(define-data-var next-vault-id uint u1)
+(define-map user-vault-count principal uint)
+
+;; ==== Dynamic Reward Booster System ====
+(define-map reward-boosters principal {
+  base-multiplier: uint, ;; Base reward multiplier
+  streak-bonus: uint, ;; Bonus for consecutive days
+  volume-bonus: uint, ;; Bonus based on volume
+  loyalty-bonus: uint, ;; Bonus for long-term holding
+  current-streak: uint,
+  last-activity-block: uint,
+  total-volume: uint
+})
+
+;; ==== Strategy Performance Competition ====
+(define-map strategy-competitions uint {
+  name: (string-ascii 64),
+  start-block: uint,
+  end-block: uint,
+  prize-pool: uint,
+  entry-fee: uint,
+  min-participants: uint,
+  max-participants: uint,
+  winner-strategy: uint,
+  active: bool,
+  participants: uint
+})
