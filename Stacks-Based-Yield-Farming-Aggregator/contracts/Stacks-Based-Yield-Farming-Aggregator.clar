@@ -276,3 +276,51 @@
       last-updated: stacks-block-height,
       source: source
     }))))
+
+;; Set minimum deposit for a token
+(define-public (set-minimum-deposit (token principal) (min-amount uint))
+  (begin
+    (asserts! (is-eq tx-sender CONTRACT_OWNER) ERR_UNAUTHORIZED)
+    (ok (map-set minimum-deposits token min-amount))))
+
+
+(define-read-only (get-subscription-fee (tier (string-ascii 16)))
+  (if (is-eq tier "basic") u1000000
+    (if (is-eq tier "premium") u5000000
+      (if (is-eq tier "platinum") u10000000 u0))))
+
+(define-read-only (get-subscription-benefits (tier (string-ascii 16)))
+  (if (is-eq tier "basic") 
+    {reduced-fees: u100, max-strategies: u5, priority-rebalance: false, custom-strategies: false}
+    (if (is-eq tier "premium")
+      {reduced-fees: u300, max-strategies: u15, priority-rebalance: true, custom-strategies: false}
+      {reduced-fees: u500, max-strategies: u50, priority-rebalance: true, custom-strategies: true})))
+
+
+(define-map multisig-transactions uint {
+  initiator: principal,
+  target-contract: principal,
+  function-name: (string-ascii 32),
+  parameters: (buff 512),
+  confirmations: (list 10 principal),
+  required-confirmations: uint,
+  executed: bool,
+  expiry-block: uint
+})
+
+;; ==== NEW FEATURE: Additional Error Constants ====
+(define-constant ERR_WHITELIST_REQUIRED (err u1019))
+(define-constant ERR_COOLDOWN_ACTIVE (err u1020))
+(define-constant ERR_INVALID_SIGNATURE (err u1021))
+(define-constant ERR_DUPLICATE_ENTRY (err u1022))
+(define-constant ERR_REWARD_EXPIRED (err u1023))
+(define-constant ERR_VAULT_LOCKED (err u1024))
+
+(define-map vip-whitelist principal {
+  tier: uint, ;; 1=bronze, 2=silver, 3=gold, 4=platinum
+  added-by: principal,
+  added-at-block: uint,
+  fee-reduction: uint, ;; Basis points reduction
+  priority-access: bool,
+  custom-limits: bool
+})
